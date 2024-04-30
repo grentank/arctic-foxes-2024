@@ -1,4 +1,4 @@
-import globals  from 'globals';
+import globals from 'globals';
 import { FlatCompat } from '@eslint/eslintrc';
 import path from "path";
 import { fileURLToPath } from "url";
@@ -12,7 +12,7 @@ const compat = new FlatCompat({
 });
 
 export default [
-  { files: ['**/*.js'], languageOptions: { sourceType: 'commonjs', ecmaVersion: 2024 } },
+  { files: ['**/*.js'], languageOptions: { sourceType: 'commonjs', ecmaVersion: 'latest' } },
   { languageOptions: { globals: globals.node } },
   ...compat.extends('airbnb-base'),
 ];

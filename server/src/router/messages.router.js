@@ -1,6 +1,7 @@
 const express = require('express');
 const { Message, User } = require('../../db/models');
 const verifyAccessToken = require('../middlewares/verifyAccessToken');
+const checkAuthor = require('../middlewares/checkAuthor');
 
 const messagesRouter = express.Router();
 
@@ -30,7 +31,7 @@ messagesRouter.route('/:id')
     });
     res.json(message);
   })
-  .delete(async (req, res) => {
+  .delete(verifyAccessToken, checkAuthor, async (req, res) => {
     await Message.destroy({
       where: {
         id: req.params.id,
@@ -38,7 +39,7 @@ messagesRouter.route('/:id')
     });
     res.sendStatus(204);
   })
-  .patch(async (req, res) => {
+  .patch(verifyAccessToken, checkAuthor, async (req, res) => {
     const message = await Message.findByPk(req.params.id);
     await message.update(req.body);
     res.json(message);

@@ -3,12 +3,16 @@ import { Col, Row } from 'react-bootstrap';
 import MessageItem from '../ui/MessageItem';
 import AddMessageForm from '../ui/AddMessageForm';
 import axiosInstance from '../../axiosInstance';
+import Loader from '../hoc/Loader';
 
-export default function AccountPage() {
+export default function AccountPage({ user }) {
   const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     axiosInstance('/messages/my').then((res) => {
       setMessages(res.data);
+    }).finally(() => {
+      setIsLoading(false);
     });
   }, []);
 
@@ -18,6 +22,13 @@ export default function AccountPage() {
     const res = await axiosInstance.post('/messages', formData);
     setMessages((prev) => [res.data, ...prev]);
   };
+
+  const deleteHandler = async (messageId) => {
+    const res = await axiosInstance.delete(`/messages/${messageId}`);
+    if (res.status === 204) {
+      setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+    }
+  };
   return (
     <>
       <Row>
@@ -25,13 +36,15 @@ export default function AccountPage() {
           <AddMessageForm addMessageHandler={addMessageHandler} />
         </Col>
       </Row>
-      <Row>
-        {messages.map((message) => (
-          <Col xs={12} key={message.id}>
-            <MessageItem message={message} />
-          </Col>
-        ))}
-      </Row>
+      <Loader isLoading={isLoading}>
+        <Row>
+          {messages.map((message) => (
+            <Col xs={12} key={message.id}>
+              <MessageItem user={user} message={message} deleteHandler={deleteHandler} />
+            </Col>
+          ))}
+        </Row>
+      </Loader>
     </>
   );
 }

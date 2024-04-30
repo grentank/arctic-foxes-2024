@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
 
-export default function MessageItem({ message }) {
+export default function MessageItem({ message, deleteHandler, user }) {
   return (
     <Card>
       <Card.Header>{message.User?.name}</Card.Header>
@@ -14,6 +14,7 @@ export default function MessageItem({ message }) {
         </Card.Text>
         <Link to={`/messages/${message.id}`}>Read more</Link>
         <Button variant="primary">Info</Button>
+        {user && user.id === message.userId && <Button onClick={() => deleteHandler(message.id)} variant="danger">Delete</Button>}
       </Card.Body>
     </Card>
   );

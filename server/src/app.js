@@ -1,12 +1,17 @@
 const express = require('express');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+// const cors = require('cors');
 const messagesRouter = require('./router/messages.router');
 const authRouter = require('./router/auth.router');
 const tokensRouter = require('./router/tokens.router');
 
 const app = express();
 
+// app.use(cors({
+//   origin: true,
+//   credentials: true,
+// }));
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());

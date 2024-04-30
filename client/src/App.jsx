@@ -7,6 +7,8 @@ import SignupPage from './components/pages/SignupPage';
 import AccountPage from './components/pages/AccountPage';
 import OneMessagePage from './components/pages/OneMessagePage';
 import axiosInstance, { setAccessToken } from './axiosInstance';
+import ProtectedRoute from './components/hoc/ProtectedRoute';
+import Loader from './components/hoc/Loader';
 
 function App() {
   const [user, setUser] = useState();
@@ -24,12 +26,17 @@ function App() {
   const loginHandler = async (event) => {
     event.preventDefault();
     const formData = Object.fromEntries(new FormData(event.target));
-    const form = event.target;
     const res = await axiosInstance.post('/auth/login', formData);
     const { data } = res;
     setUser(data.user);
     setAccessToken(data.accessToken);
-    form.reset();
+  };
+
+  const signupHandler = async (formData) => {
+    const res = await axiosInstance.post('/auth/signup', formData);
+    const { data } = res;
+    setUser(data.user);
+    setAccessToken(data.accessToken);
   };
 
   const logoutHandler = async () => {
@@ -44,19 +51,24 @@ function App() {
       children: [
         {
           path: '/',
-          element: <HomePage />,
+          element: <HomePage user={user} />,
         },
         {
-          path: '/login',
-          element: <LoginPage loginHandler={loginHandler} />,
-        },
-        {
-          path: '/signup',
-          element: <SignupPage />,
+          element: <ProtectedRoute isAllowed={!user} />,
+          children: [
+            {
+              path: '/login',
+              element: <LoginPage loginHandler={loginHandler} />,
+            },
+            {
+              path: '/signup',
+              element: <SignupPage signupHandler={signupHandler} />,
+            },
+          ],
         },
         {
           path: '/account',
-          element: <AccountPage />,
+          element: (<ProtectedRoute isAllowed={!!user} redirectPath="/login"><AccountPage user={user} /></ProtectedRoute>),
         },
         {
           path: '/messages/:mid',
@@ -66,7 +78,7 @@ function App() {
     },
   ];
   const router = createBrowserRouter(routes);
-  return <RouterProvider router={router} />;
+  return <Loader isLoading={user === undefined}><RouterProvider router={router} /></Loader>;
 }
 
 export default App;
