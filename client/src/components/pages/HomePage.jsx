@@ -1,28 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Col, Row } from 'react-bootstrap';
+// import { useLoaderData } from 'react-router-dom';
 import MessageItem from '../ui/MessageItem';
-import axiosInstance from '../../axiosInstance';
+import useMessages from '../../hooks/useMessages';
+import Loader from '../hoc/Loader';
+// import useLoaderMessages from '../../hooks/useLoaderMessages';
 
-export default function HomePage({ user }) {
-  const [messages, setMessages] = useState([]);
-  useEffect(() => {
-    axiosInstance('/messages').then((res) => {
-      setMessages(res.data);
-    });
-  }, []);
-  const deleteHandler = async (messageId) => {
-    const res = await axiosInstance.delete(`/messages/${messageId}`);
-    if (res.status === 204) {
-      setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
-    }
-  };
+export default function HomePage() {
+  // const data = useLoaderData();
+  // const { messages, deleteHandler, isLoading } = useLoaderMessages(data);
+  const { messages, deleteHandler, isLoading } = useMessages('/messages');
   return (
-    <Row>
-      {messages.map((message) => (
-        <Col xs={12} key={message.id}>
-          <MessageItem user={user} message={message} deleteHandler={deleteHandler} />
-        </Col>
-      ))}
-    </Row>
+    <Loader isLoading={isLoading}>
+      <Row>
+        {messages.map((message) => (
+          <Col xs={12} key={message.id}>
+            <MessageItem message={message} deleteHandler={deleteHandler} />
+          </Col>
+        ))}
+      </Row>
+    </Loader>
   );
 }

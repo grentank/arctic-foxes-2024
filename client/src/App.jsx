@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-constructed-context-values */
 import React, { useEffect, useState } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -6,69 +7,43 @@ import LoginPage from './components/pages/LoginPage';
 import SignupPage from './components/pages/SignupPage';
 import AccountPage from './components/pages/AccountPage';
 import OneMessagePage from './components/pages/OneMessagePage';
-import axiosInstance, { setAccessToken } from './axiosInstance';
 import ProtectedRoute from './components/hoc/ProtectedRoute';
 import Loader from './components/hoc/Loader';
+import useAuth from './hooks/useAuth';
+import UserContext from './contexts/UserContext';
+import { getAllMessages, getMyMessages } from './loaders';
 
 function App() {
-  const [user, setUser] = useState();
-
-  useEffect(() => {
-    axiosInstance('/tokens/refresh').then((res) => {
-      const { user: newUser, accessToken } = res.data;
-      setUser(newUser);
-      setAccessToken(accessToken);
-    }).catch(() => {
-      setUser(null);
-    });
-  }, []);
-
-  const loginHandler = async (event) => {
-    event.preventDefault();
-    const formData = Object.fromEntries(new FormData(event.target));
-    const res = await axiosInstance.post('/auth/login', formData);
-    const { data } = res;
-    setUser(data.user);
-    setAccessToken(data.accessToken);
-  };
-
-  const signupHandler = async (formData) => {
-    const res = await axiosInstance.post('/auth/signup', formData);
-    const { data } = res;
-    setUser(data.user);
-    setAccessToken(data.accessToken);
-  };
-
-  const logoutHandler = async () => {
-    await axiosInstance('/auth/logout');
-    setUser(null);
-    setAccessToken('');
-  };
+  const {
+    user, loginHandler, logoutHandler, signupHandler,
+  } = useAuth();
 
   const routes = [
     {
-      element: <Layout user={user} logoutHandler={logoutHandler} />,
+      element: <Layout />,
       children: [
         {
           path: '/',
-          element: <HomePage user={user} />,
+          element: <HomePage />,
+          // loader: getAllMessages,
         },
         {
           element: <ProtectedRoute isAllowed={!user} />,
           children: [
             {
               path: '/login',
-              element: <LoginPage loginHandler={loginHandler} />,
+              element: <LoginPage />,
             },
             {
               path: '/signup',
-              element: <SignupPage signupHandler={signupHandler} />,
+              element: <SignupPage />,
             },
           ],
         },
         {
           path: '/account',
-          element: (<ProtectedRoute isAllowed={!!user} redirectPath="/login"><AccountPage user={user} /></ProtectedRoute>),
+          // loader: getMyMessages,
+          element: (<ProtectedRoute isAllowed={!!user} redirectPath="/login"><AccountPage /></ProtectedRoute>),
         },
         {
           path: '/messages/:mid',
@@ -78,7 +53,16 @@ function App() {
     },
   ];
   const router = createBrowserRouter(routes);
-  return <Loader isLoading={user === undefined}><RouterProvider router={router} /></Loader>;
+  return (
+    <UserContext.Provider value={{
+      user, loginHandler, logoutHandler, signupHandler,
+    }}
+    >
+      <Loader isLoading={user === undefined}>
+        <RouterProvider router={router} />
+      </Loader>
+    </UserContext.Provider>
+  );
 }
 
 export default App;

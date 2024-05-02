@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import UserContext from '../../contexts/UserContext';
 
-export default function SignupPage({ signupHandler }) {
+export default function SignupPage() {
+  const { signupHandler } = useContext(UserContext)
   const [formData, setFormData] = useState({ email: '', name: '', password: '' });
   const handlerChange = (e) => setFormData(
     (prev) => ({ ...prev, [e.target.name]: e.target.value }),

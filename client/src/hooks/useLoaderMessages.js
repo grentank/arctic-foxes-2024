@@ -1,0 +1,24 @@
+import { useState } from 'react';
+import axiosInstance from '../axiosInstance';
+
+export default function useLoaderMessages(initialData) {
+  const [messages, setMessages] = useState(initialData);
+
+  const addMessageHandler = async (e) => {
+    e.preventDefault();
+    const formData = Object.fromEntries(new FormData(e.target));
+    const res = await axiosInstance.post('/messages', formData);
+    setMessages((prev) => [res.data, ...prev]);
+  };
+
+  const deleteHandler = async (messageId) => {
+    const res = await axiosInstance.delete(`/messages/${messageId}`);
+    if (res.status === 204) {
+      setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+    }
+  };
+
+  return {
+    messages, deleteHandler, addMessageHandler,
+  };
+}

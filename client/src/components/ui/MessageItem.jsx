@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
+import UserContext from '../../contexts/UserContext';
 
-export default function MessageItem({ message, deleteHandler, user }) {
+export default function MessageItem({ message, deleteHandler }) {
+  const { user } = useContext(UserContext);
   return (
     <Card>
       <Card.Header>{message.User?.name}</Card.Header>

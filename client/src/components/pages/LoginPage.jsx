@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import UserContext from '../../contexts/UserContext';
 
-export default function LoginPage({ loginHandler }) {
+export default function LoginPage() {
+  const { loginHandler } = useContext(UserContext);
   return (
     <Form onSubmit={loginHandler}>
       <Form.Group className="mb-3">
