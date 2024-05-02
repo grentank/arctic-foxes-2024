@@ -11,10 +11,7 @@ messagesRouter.route('/').get(async (req, res) => {
   });
   res.json(messages);
 }).post(verifyAccessToken, async (req, res) => {
-  console.log(req.body);
-  console.log(res.locals.user.id);
   const newMessage = await Message.create({ ...req.body, userId: res.locals.user.id });
-  console.log(newMessage);
   const msgWithUser = await Message.findByPk(newMessage.id, { include: [User] });
   res.json(msgWithUser);
 });
