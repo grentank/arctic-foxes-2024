@@ -15,7 +15,7 @@ export default function useMessages(messagesUrl) {
   const addMessageHandler = async (e) => {
     e.preventDefault();
     const formData = Object.fromEntries(new FormData(e.target));
-    const res = await axiosInstance.post('/messages/post', formData);
+    const res = await axiosInstance.post('/messages', formData);
     setMessages((prev) => [res.data, ...prev]);
   };
 
